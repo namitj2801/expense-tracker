@@ -7,10 +7,11 @@ const SideMenu = ({ activeMenu }) => {
   const { user, clearUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  console.log("activeMenu prop:", activeMenu);
-  console.log("location.pathname:", location.pathname);
-  // console.log("item.path:", item.path);
-  // console.log("Is active?", location.pathname === item.path);
+  // console.log("activeMenu prop:", activeMenu);
+  // console.log("location.pathname:", location.pathname);
+  // // console.log("item.path:", item.path);
+  // // console.log("Is active?", location.pathname === item.path);
+  // console.log(location.pathname, item.path);
 
   const handleClick = (route) => {
     if (route === "logout") {
@@ -47,8 +48,11 @@ const SideMenu = ({ activeMenu }) => {
         return (
           <button
             key={`menu_${index}`}
+            // className={`w-full flex items-center gap-4 text-[15px] ${
+            //   activeMenu == items.label ? "text-white bg-primary" : ""
+            // } py-3 px-6 rounded-lg mb-3`}
             className={`w-full flex items-center gap-4 text-[15px] ${
-              activeMenu == items.label ? "text-white bg-primary" : ""
+              location.pathname === items.path ? "text-white bg-primary" : ""
             } py-3 px-6 rounded-lg mb-3`}
             onClick={() => handleClick(items.path)}
           >
