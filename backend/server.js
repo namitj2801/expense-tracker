@@ -6,6 +6,7 @@ const connectDB = require("./config/db");
 const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
+const expenseRoutes = require("./routes/expenseRoutes");
 
 dotenv.config({
   path: "./.env",
@@ -29,6 +30,7 @@ connectDB();
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/income", incomeRoutes);
+app.use("/api/v1/expense", expenseRoutes);
 
 // Server uploads folder
 app.use("/upload", express.static(path.join(__dirname, "uploads")));
