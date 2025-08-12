@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import AuthLayout from "../../components/layouts/AuthLayout";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../../components/Inputs/Input";
@@ -6,7 +6,6 @@ import { validateEmail } from "../../Utils/helper";
 import ProfilePhotoSelector from "../../components/Inputs/ProfilePhotoSelector";
 import axiosInstance from "../../Utils/axiosInstance";
 import uploadImage from "../../Utils/uploadImage";
-import { useContext } from "react";
 import { UserContext } from "../../context/UserContext";
 import { API_PATHS } from "../../Utils/apiPaths";
 
@@ -18,8 +17,29 @@ const SignUp = () => {
 
   const [error, setError] = useState(null);
 
-  const { updateUser } = useContext(UserContext);
+  const { updateUser, user, loading } = useContext(UserContext);
   const navigate = useNavigate();
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/dashboard");
+    }
+  }, [user, loading, navigate]);
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Don't render signup form if user is already logged in
+  if (user) {
+    return null;
+  }
 
   //Handle sign up form submit
   const handleSignUp = async (e) => {
@@ -45,7 +65,7 @@ const SignUp = () => {
       // Upload image if present
       if (profilePic) {
         const imgUploadRes = await uploadImage(profilePic);
-        profileImageUrl = imgUploadRes.data.url || "";
+        profileImageUrl = imgUploadRes.imageUrl || "";
       }
 
       const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
