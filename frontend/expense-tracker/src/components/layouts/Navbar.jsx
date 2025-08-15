@@ -2,21 +2,27 @@ import React, { useState } from "react";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import SideMenu from "./SideMenu";
 
+// Top navigation bar with mobile-responsive side menu toggle
 const Navbar = (activeMenu) => {
   const [openSideMenu, setOpenSideMenu] = useState(false);
   return (
     <div className="flex gap-5 bg-white border border-b border-gray-200/50 backdrop-blur-[2px] py-4 px-7 sticky top-0 z-30">
+      {/* Mobile menu toggle button - only visible on small screens */}
       <button
         className="block lg:hidden text-black "
         onClick={() => setOpenSideMenu(!openSideMenu)}
       >
         {openSideMenu ? (
-          <HiOutlineX className="text-2xl" />
+          <HiOutlineX className="text-2xl" /> // Close icon when menu is open
         ) : (
-          <HiOutlineMenu className="text-2xl" />
+          <HiOutlineMenu className="text-2xl" /> // Menu icon when menu is closed
         )}
       </button>
+
+      {/* Application title */}
       <h2 className="text-lg font-medium text-black">Expense Tracker</h2>
+
+      {/* Mobile side menu overlay - positioned below navbar */}
       {openSideMenu && (
         <div className="fixed top-[61px] -ml-4 bg-white">
           <SideMenu activeMenu={activeMenu} />

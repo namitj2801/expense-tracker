@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const bcrypt = require("bcryptjs");
 
+// User schema definition with required fields and timestamps
 const UserSchema = new mongoose.Schema(
   {
     fullName: {
@@ -11,7 +12,7 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
+      unique: true, // Ensures email uniqueness across users
     },
     password: {
       type: String,
@@ -19,19 +20,20 @@ const UserSchema = new mongoose.Schema(
     },
     profileImageUrl: {
       type: String,
-      default: null,
+      default: null, // Optional profile image
     },
   },
-  { timestamps: true }
+  { timestamps: true } // Automatically adds createdAt and updatedAt fields
 );
 
-// Hash password
+// Pre-save middleware to hash password before saving to database
 UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
+  if (!this.isModified("password")) return next(); // Skip if password hasn't changed
+  this.password = await bcrypt.hash(this.password, 10); // Hash with salt rounds of 10
   next();
 });
 
+// Instance method to compare password with hashed password in database
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };

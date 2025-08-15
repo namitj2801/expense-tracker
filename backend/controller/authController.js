@@ -1,30 +1,30 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
-// Generate JWT token
+// Generate JWT token for user authentication
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRY,
   });
 };
 
-// Register User
+// Register new user with validation and duplicate email check
 exports.registerUser = async (req, res) => {
   const { fullName, email, password, profileImageUrl } = req.body;
 
-  // Validate the fields
-
+  // Validate required fields
   if (!fullName || !email || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
+    // Check if user with email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" });
     }
 
-    // Create the user
+    // Create new user in database
     const user = await User.create({
       fullName,
       email,
@@ -32,6 +32,7 @@ exports.registerUser = async (req, res) => {
       profileImageUrl,
     });
 
+    // Return user data with JWT token
     res.status(201).json({
       id: user._id,
       user,
@@ -45,17 +46,20 @@ exports.registerUser = async (req, res) => {
       .json({ message: "Error registering user", error: error.message });
   }
 };
-// Login User
+
+// Authenticate user login with email and password verification
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
   try {
+    // Find user by email and verify password
     const user = await User.findOne({ email });
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
+    // Return user data with JWT token on successful login
     res.status(200).json({
       id: user._id,
       user,
@@ -68,9 +72,11 @@ exports.loginUser = async (req, res) => {
       .json({ message: "Error logging in user", error: error.messag });
   }
 };
-// Get User info
+
+// Retrieve current user information (requires authentication)
 exports.getUserInfo = async (req, res) => {
   try {
+    // Find user by ID from authenticated request, exclude password
     const user = await User.findById(req.user.id).select("-password");
 
     if (!user) {

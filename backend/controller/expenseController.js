@@ -2,24 +2,25 @@
 const Expense = require("../models/Expense");
 const xlsx = require("xlsx");
 
-// Add Expense Source
+// Create new expense entry for authenticated user
 exports.addExpense = async (req, res) => {
   const userId = req.user.id;
 
   try {
     const { icon, category, amount, date } = req.body;
 
-    // Validate for missing fields
+    // Validate required fields
     if (!category || !amount || !date) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    // Create new expense instance with user ID and expense details
     const newExpense = new Expense({
       userId,
       icon,
       category,
       amount,
-      date: new Date(date),
+      date: new Date(date), // Convert string date to Date object
     });
 
     await newExpense.save();
@@ -30,7 +31,7 @@ exports.addExpense = async (req, res) => {
   }
 };
 
-// Get all expense
+// Retrieve all expenses for authenticated user, sorted by date (newest first)
 exports.getAllExpense = async (req, res) => {
   const userId = req.user.id;
 
@@ -42,7 +43,7 @@ exports.getAllExpense = async (req, res) => {
   }
 };
 
-// Delete expense category
+// Remove expense entry by ID
 exports.deleteExpense = async (req, res) => {
   //   const userId = req.user.id;
 
@@ -57,22 +58,26 @@ exports.deleteExpense = async (req, res) => {
   }
 };
 
-// Download expense source
+// Generate and download expense data as Excel file
 exports.downloadExpenseExcel = async (req, res) => {
   const userId = req.user.id;
   try {
+    // Fetch user's expenses sorted by date
     const expense = await Expense.find({ userId }).sort({ date: -1 });
 
-    // Excel
+    // Format data for Excel export
     const data = expense.map((items) => ({
       Category: items.category,
       Amount: items.amount,
       Date: items.date,
     }));
 
+    // Create Excel workbook and worksheet
     const wb = xlsx.utils.book_new();
     const ws = xlsx.utils.json_to_sheet(data);
     xlsx.utils.book_append_sheet(wb, ws, "Expense");
+
+    // Write file to disk and send for download
     xlsx.writeFile(wb, "expense_details.xlsx");
     res.download("expense_details.xlsx");
   } catch (error) {

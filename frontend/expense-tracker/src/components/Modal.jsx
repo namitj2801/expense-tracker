@@ -1,6 +1,8 @@
 import React from "react";
 
+// Reusable modal component with backdrop and close functionality
 const Modal = ({ children, isOpen, onClose, title }) => {
+  // Don't render if modal is not open
   if (!isOpen) {
     return null;
   }
@@ -8,12 +10,13 @@ const Modal = ({ children, isOpen, onClose, title }) => {
   return (
     <div className="flex top-0 right-0 left-0 z-50 fixed justify-center items-center w-full h-[calc(100%-1rem)] max-h-full overflow-y-auto overflow-x-hidden bg-black/20 bg-opacity-50">
       <div className="relative p-4 w-full max-w-2xl max-h-full">
-        {/* Modal content */}
+        {/* Modal content container */}
         <div className="relative bg-white rounded-lg shadow-sm">
-          {/* Modal header */}
+          {/* Modal header with title and close button */}
           <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200 ">
             <h3 className="text-lg font-medium text-gray-900">{title}</h3>
 
+            {/* Close button with hover effects */}
             <button
               className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center cursor-pointer"
               type="button"
@@ -36,6 +39,8 @@ const Modal = ({ children, isOpen, onClose, title }) => {
               </svg>
             </button>
           </div>
+
+          {/* Modal body content */}
           <div className="p-4 md:p-5 space-y-4 ">{children}</div>
         </div>
       </div>

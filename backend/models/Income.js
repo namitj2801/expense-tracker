@@ -1,29 +1,30 @@
 const mongoose = require("mongoose");
 
+// Income schema for tracking user earnings from various sources
 const IncomeSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "User", // Reference to User model for relationship
       required: true,
     },
     icon: {
-      type: String,
+      type: String, // Emoji or icon representation for the income source
     },
     source: {
       type: String,
-      required: true,
+      required: true, // Income source (e.g., salary, freelance, investment)
     },
     amount: {
       type: Number,
-      required: true,
+      required: true, // Income amount in currency units
     },
     date: {
       type: Date,
-      default: Date.now,
+      default: Date.now, // Defaults to current date if not specified
     },
   },
-  { timestamps: true }
+  { timestamps: true } // Automatically tracks creation and update times
 );
 
 module.exports = mongoose.model("Income", IncomeSchema);

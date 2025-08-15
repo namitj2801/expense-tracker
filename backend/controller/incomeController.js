@@ -2,24 +2,25 @@
 const Income = require("../models/Income");
 const xlsx = require("xlsx");
 
-// Add Income Source
+// Create new income entry for authenticated user
 exports.addIncome = async (req, res) => {
   const userId = req.user.id;
 
   try {
     const { icon, source, amount, date } = req.body;
 
-    // Validate for missing fields
+    // Validate required fields
     if (!source || !amount || !date) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    // Create new income instance with user ID and income details
     const newIncome = new Income({
       userId,
       icon,
       source,
       amount,
-      date: new Date(date),
+      date: new Date(date), // Convert string date to Date object
     });
 
     await newIncome.save();
@@ -30,7 +31,7 @@ exports.addIncome = async (req, res) => {
   }
 };
 
-// Get all income source
+// Retrieve all income sources for authenticated user, sorted by date (newest first)
 exports.getAllIncome = async (req, res) => {
   const userId = req.user.id;
 
@@ -42,7 +43,7 @@ exports.getAllIncome = async (req, res) => {
   }
 };
 
-// Delete income source
+// Remove income entry by ID
 exports.deleteIncome = async (req, res) => {
   //   const userId = req.user.id;
 
@@ -55,22 +56,26 @@ exports.deleteIncome = async (req, res) => {
   }
 };
 
-// Download income source
+// Generate and download income data as Excel file
 exports.downloadIncomeExcel = async (req, res) => {
   const userId = req.user.id;
   try {
+    // Fetch user's income sources sorted by date
     const income = await Income.find({ userId }).sort({ date: -1 });
 
-    // Excel
+    // Format data for Excel export
     const data = income.map((items) => ({
       Source: items.source,
       Amount: items.amount,
       Date: items.date,
     }));
 
+    // Create Excel workbook and worksheet
     const wb = xlsx.utils.book_new();
     const ws = xlsx.utils.json_to_sheet(data);
     xlsx.utils.book_append_sheet(wb, ws, "Income");
+
+    // Write file to disk and send for download
     xlsx.writeFile(wb, "income_details.xlsx");
     res.download("income_details.xlsx");
   } catch (error) {

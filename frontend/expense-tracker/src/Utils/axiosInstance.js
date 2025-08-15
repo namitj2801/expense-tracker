@@ -2,20 +2,22 @@ import axios from "axios";
 import { BASE_URL } from "./apiPaths";
 // import { useNavigate } from "react-router-dom";
 
+// Create configured axios instance with base URL and default settings
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: 10000, // 10 second timeout for requests
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
-// Request Interceptor
+// Request interceptor to automatically add JWT token to all requests
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("token");
     if (accessToken) {
+      // Add Bearer token to Authorization header if available
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
@@ -25,7 +27,7 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Respone Interceptor
+// Response interceptor to handle common HTTP errors globally
 axiosInstance.interceptors.response.use(
   (response) => {
     return response;
