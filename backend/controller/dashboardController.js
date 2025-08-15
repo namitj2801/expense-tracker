@@ -10,7 +10,7 @@ exports.getDashboardData = async (req, res) => {
       return res.status(400).json({ message: "Invalid User ID" });
     }
 
-    const userObjectId = new Types.ObjectId(userId);
+    const userObjectId = new Types.ObjectId(String(userId)); // added String()
 
     // Total income & expenses
     const totalIncomeAgg = await Income.aggregate([
@@ -25,15 +25,15 @@ exports.getDashboardData = async (req, res) => {
     const totalIncome = totalIncomeAgg[0]?.total || 0;
     const totalExpense = totalExpenseAgg[0]?.total || 0;
 
-    // Income last 60 days
-    const last60DaysIncomeTransactions = await Income.find({
+    // Income last 30 days
+    const last30DaysIncomeTransactions = await Income.find({
       userId: userObjectId,
-      date: { $gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) },
+      date: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
     })
       .sort({ date: -1 })
       .lean();
 
-    const incomeLast60Days = last60DaysIncomeTransactions.reduce(
+    const incomeLast30Days = last30DaysIncomeTransactions.reduce(
       (sum, txn) => sum + txn.amount,
       0
     );
@@ -59,7 +59,7 @@ exports.getDashboardData = async (req, res) => {
           .limit(5)
           .lean()
       ).map((txn) => ({
-        ...txn,
+        ...txn, // .toObject()?
         type: "income",
       })),
       ...(
@@ -68,7 +68,7 @@ exports.getDashboardData = async (req, res) => {
           .limit(5)
           .lean()
       ).map((txn) => ({
-        ...txn,
+        ...txn, // .toObject()?
         type: "expense",
       })),
     ].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -81,11 +81,11 @@ exports.getDashboardData = async (req, res) => {
       totalExpense,
       last30daysExpenses: {
         total: expenseLast30Days,
-        transaction: last30DaysExpenseTransactions,
+        transactions: last30DaysExpenseTransactions,
       },
-      last60daysIncome: {
-        total: incomeLast60Days,
-        transactions: last60DaysIncomeTransactions,
+      last30daysIncome: {
+        total: incomeLast30Days,
+        transactions: last30DaysIncomeTransactions,
       },
       recentTransactions: lastTransactions,
     });
