@@ -1,5 +1,6 @@
 // Base URL for the backend API server
-export const BASE_URL = "http://localhost:8000";
+// export const BASE_URL = "http://localhost:8000";
+export const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // Centralized API endpoint definitions for consistent usage across the application
 export const API_PATHS = {
